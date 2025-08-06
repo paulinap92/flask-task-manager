@@ -41,7 +41,7 @@ class UserEntity(sa.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
     surname: Mapped[str] = mapped_column(String(30))
-    email: Mapped[str] = mapped_column(String(55))
+    email: Mapped[str] = mapped_column(String(55), unique=True, nullable = False)
 
     def to_dict(self) -> dict[str, int | str | None]:
         """Convert user entity to dictionary."""

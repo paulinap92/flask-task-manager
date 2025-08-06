@@ -185,6 +185,9 @@ class UserRepository(CrudRepositoryORM[UserEntity]):
         else:
             raise ValueError(f"User with ID {user_id} is already assigned to project with ID {project_id}.")
 
+    def find_by_email(self, email: str) -> UserEntity | None:
+        return sa.session.query(UserEntity).filter_by(email=email).first()
+
 
 class ProjectRepository(CrudRepositoryORM[ProjectEntity]):
     """Repository for ProjectEntity with additional methods
@@ -228,6 +231,17 @@ class TaskRepository(CrudRepositoryORM[TaskEntity]):
             self.sa.session.commit()
             return task
         return None
+
+    def find_all_sorted_by_date(self, sort_by: str = 'start_date', descending: bool = False) -> list[TaskEntity]:
+        """Return all tasks sorted by a date field."""
+        if sort_by not in {'start_date', 'end_date'}:
+            raise ValueError("Invalid sort field. Use 'start_date' or 'end_date'.")
+        order = desc(getattr(TaskEntity, sort_by)) if descending else asc(getattr(TaskEntity, sort_by))
+        return self.sa.session.query(TaskEntity).order_by(order).all()
+
+    def find_by_status(self, status: TaskStatusEnum) -> list[TaskEntity]:
+        """Get all tasks that belong to a specific project."""
+        return self.sa.session.query(TaskEntity).filter_by(status=status).all()
 
 
 class TaskHistoryRepository(CrudRepositoryORM[TaskHistoryEntity]):
